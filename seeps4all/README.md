@@ -1,16 +1,16 @@
 # :umbrella: SEEPS4ALL for the verification of precipitation forecasts
-This repository provides preprocessed of daily precipitation derived from **ECA&D**, 2 examples of foreacts collocated, as well as scripts to compute verification scores.
+This repository provides preprocessed data of daily precipitation in-situ observations derived from **ECA&D**, as well as 2 examples of foreacts collocated, together with scripts to compute verification scores.
 
 ---
 
 ## :small_orange_diamond: What is ECA&D?
 
-[ECA&D]
+[ECA&D](https://www.ecad.eu/dailydata/predefinedseries.php)
 
 ## :small_orange_diamond: What is SEEPS4ALL?
 SEEPS4ALL resembles scripts to build datasets (observation and forecasts) and notebooks to compute and plot verification metrics. 
 
-The observation datasets are based on ECA&D. The weather variable of interest here is 24h-precipitation. The observation dataset covers the years 2022 to 2024 as it is now. Climatological statistics (including SEEPS coefficients) are computed over the period 1991-2020. The raw data is accessible from ECA&D website (https://www.ecad.eu/dailydata/predefinedseries.php). Starting from this later, one can build the SEEPS4ALL observation/seeps/climate dataset using the following scripts sequentially:
+The observation datasets are based on ECA&D. The weather variable of interest here is 24h-precipitation. The observation dataset covers the years 2022 to 2024 as it is now. Climatological statistics (including SEEPS coefficients) are computed over the period 1991-2020. The raw data is accessible from [ECA&D website](https://www.ecad.eu/dailydata/predefinedseries.php). Starting from this later, one can build the SEEPS4ALL observation/seeps/climate dataset using the following scripts sequentially:
 
 - A1. gen/build_seeps4all_step1.py # to build one info file (with clim, seeps, ...) per station (one file for each station separately)
 
