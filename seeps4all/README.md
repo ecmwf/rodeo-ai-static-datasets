@@ -1,5 +1,5 @@
 # :umbrella: SEEPS4ALL for the verification of precipitation forecasts
-This repository provides preprocessed data of daily precipitation in-situ observations derived from **ECA&D**, as well as 2 examples of foreacts collocated, together with scripts to compute verification scores.
+This repository provides tools to generate preprocessed data of daily precipitation in-situ observations derived from **ECA&D** as well as collocated foreacts, together with scripts to compute verification scores.
 
 ---
 
