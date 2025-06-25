@@ -1,0 +1,89 @@
+defaults:
+- data: zarr
+- dataloader: native_grid
+- datamodule: single
+- diagnostics: evaluation
+- hardware: atos_slurm
+- graph: encoder_decoder_only
+- model: transformer
+- training: default
+- _self_
+
+config_validation: False
+
+data: 
+  resolution: o96 
+  diagnostic:
+    - tp
+
+  imputer:
+    default: "none"
+    0:
+      - tp
+
+  processors:
+    imputer:
+      _target_: anemoi.models.preprocessing.imputer.DynamicConstantImputer
+      _convert_: all
+      config: ${data.imputer}
+    normalizer:
+      _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+      config: ${data.normalizer}
+
+# CUTOUT TP OPERA-ERA5
+dataloader:
+  dataset:
+    - dataset: 
+        complement:
+            dataset:
+              cutout:
+                - dataset: ${hardware.paths.data}/${hardware.files.opera}
+                  area:
+                      - 70
+                      - -10
+                      - - 20
+                      - 70
+                - dataset: ${hardware.paths.data}/${hardware.files.era5}
+                  select: [ tp ]
+              min_distance_km: 1
+              adjust: dates
+        source: ${hardware.paths.data}/${hardware.files.era5}
+        interpolation: nearest
+      statistics: ${hardware.paths.data}/${hardware.files.era5} # force Anemoi to use the statistics from the global dataset
+
+
+  training:
+    dataset: ${dataloader.dataset}
+    drop: []
+
+  validation:
+    dataset: ${dataloader.dataset}
+    drop: []
+
+
+  limit_batches:
+    training: null
+    validation: null
+    # training: 10
+    # validation: 10
+
+diagnostics:
+  log:
+    mlflow:
+      enabled: False
+hardware:
+  paths:
+    data: path/to/dataset #! TODO
+  files:
+    opera: opera_o96_2015_6hr_global.zarr
+    era5: aifs-ea-an-oper-0001-mars-o96-1979-2022-6h-v6.zarr
+    graph: opera_era5_o96.pt
+
+model:
+  num_channels: 512
+
+training:
+  max_steps: 10000
+  max_epochs: 100
+  num_sanity_val_steps: 6
+
