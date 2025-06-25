@@ -12,7 +12,7 @@ This repository provides metadata, documentation, and examples for a set of cura
   - `README.md` describing dataset content and structure
   - Jupyter notebook for accessing and using the dataset in the context of **forecast verification**
 
-### [`opera-anemoi`](https://github.com/ecmwf/rodeo-ai-static-datasets/opera)
+### [`opera`](https://github.com/ecmwf/rodeo-ai-static-datasets/opera)
 - Provides OPERA-based datasets tailored for ML training using the **Anemoi** framework.
 - Includes:
   - `README.md` detailing data preparation and usage
