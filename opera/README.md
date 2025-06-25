@@ -65,7 +65,7 @@ s3cmd ls s3://ecmwf-rodeo-benchmark/opera/
 
 # Download a specific dataset
 s3cmd get --recursive s3://ecmwf-rodeo-benchmark/opera/[dataset_name]
-
+```
 ---
 
 ## 📄 License
