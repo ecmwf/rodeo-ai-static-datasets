@@ -22,7 +22,7 @@ def get_obs(path_data,obs_type,obs_origin="ecad",years="2022_2024",param="tp24")
             os.makedirs(path_data)
         print(f". fetching data from {url}")
         bucket = "ecmwf-rodeo-benchmark"
-        ds = xr.open_zarr(f'{url}/{bucket}/seeps4all/obs_{obs_type}_{years}_{obs_origin}.zarr')
+        ds = xr.open_zarr(f'{url}/{bucket}/seeps4all/obs_{obs_type}_{param}_{years}_{obs_origin}.zarr')
         ds.to_zarr(path_zarr)
     print(f"open: {path_zarr}")
     obs_seeps_data = xr.open_zarr(path_zarr,decode_timedelta=True)
