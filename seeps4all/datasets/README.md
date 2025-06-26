@@ -1,4 +1,4 @@
-## Data sripts to build SEEPS4ALL from ECA&D and Raw Forecasts
+## Sripts to build SEEPS4ALL from ECA&D and collocate raw forecasts
 
 Scripts used to generate the SEEPS4ALL datasets.
 They could be used to update the datasets with new dates or build a dataset for another weather parameter.
