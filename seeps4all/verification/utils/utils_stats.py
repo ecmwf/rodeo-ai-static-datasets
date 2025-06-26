@@ -153,7 +153,7 @@ def dressing(fct_data:xr.Dataset,
     
 def get_boot_ids(ndates= 1000,nblock= 5)-> np.ndarray:
     """ Block-bootstrapping slection."""
-    i0 = np.random.choice(range(ndates%nblock))+1
+    i0 = np.random.choice(range(ndates%nblock+1))
     id_block = np.random.choice(range(int(ndates/nblock)),int(ndates/nblock))
     id_boot = [ list(range(iday*nblock+i0,(iday+1)*nblock+i0))for iday in id_block  ] 
     id_boot = np.array(id_boot).flatten()
