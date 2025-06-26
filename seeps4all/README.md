@@ -5,30 +5,37 @@ This repository provides tools to generate preprocessed data of daily precipitat
 
 ## :small_orange_diamond: What is ECA&D?
 
-[ECA&D](https://www.ecad.eu/dailydata/predefinedseries.php)
+[ECA&D](https://www.ecad.eu) stands for European Climate Assessment & Dataset. 
+ECA&D encompassess daily dataset needed to monitor and analyse changes in weather and climate extremes.
+
+Here the focus in on:
+- Daily precipitation
+- Over Europe
 
 ## :small_orange_diamond: What is SEEPS4ALL?
-SEEPS4ALL resembles scripts to build datasets (observation and forecasts) and notebooks to compute and plot verification metrics. 
 
-The observation datasets are based on ECA&D. The weather variable of interest here is 24h-precipitation. The observation dataset covers the years 2022 to 2024 as it is now. Climatological statistics (including SEEPS coefficients) are computed over the period 1991-2020. The raw data is accessible from [ECA&D website](https://www.ecad.eu/dailydata/predefinedseries.php). Starting from this later, one can build the SEEPS4ALL observation/seeps/climate dataset using the following scripts sequentially:
+Scores specifically designed to assess the performance of precipitation forecasts have been developed over the years. One example is the Stable and Equitable Error in Probability Space ([SEEPS, Rodwell et al 2010](https://doi.org/10.1002/qj.656)). The computation of this score is however not straightforward because it requires information about the precipitation climatology at the verification locations. More generally, climate statistics are key to assessing forecasts for extreme precipitation and high-impact events. Here, we introduce SEEPS4ALL, a set of data and tools that democratize the use of  climate statistics for verification purposes. In particular, verification results for daily precipitation are showcased with both deterministic and probabilistic forecasts.
 
-- A1. [build_seeps4all_step1](https://github.com/ecmwf/rodeo-ai-static-datasets/blob/seeps/seeps4all/datasets/build_seeps4all_step1.py) # to build one info file (with clim, seeps, ...) per station (one file for each station separately)
+---
 
-- A2. [build_seeps4all_step2](https://github.com/ecmwf/rodeo-ai-static-datasets/blob/seeps/seeps4all/datasets/build_seeps4all_step2.py) # to generate the obs_seeps and obs_clim used in the verifcatiom notebooks.
+SEEPS4ALL resembles scripts to build datasets (observations and forecasts) as well as notebooks to compute and plot verification metrics. 
 
-SEEPS4ALL observation datasets are already ready to be used, so one would need to follow steps A1 and A2 only to build datasets including more years or for other weather variables.
+The observation datasets are based on ECA&D. The raw data is accessible from [ECA&D website](https://www.ecad.eu/dailydata/predefinedseries.php).  The weather variable of interest here is 24h-precipitation. 
 
-The forecast datasets are generated using grib files as input (please adpat as need if your foreacst is in netcdf or any other format). When one would like to assess a new model or experiment the following scripts can be run to collocate forecasts and observations and generate data in a Zarr format.  The forecast dataset is used together with the observations in the verification scripts. To generate a new forecast dataset, one would use the following script:   
+SEEPS4ALL  observation dataset covers the years 2022 to 2024 (as for now). 
 
-- A3. [example_build_collocated_forecast](https://github.com/ecmwf/rodeo-ai-static-datasets/blob/seeps/seeps4all/datasets/example_build_collocated_forecast.py) # for a single deterministic forecast or
+Climatological statistics are computed over the period 1991-2020. They corresponds to:
+- the SEEPS parameters that is the thresholds and probabilities of occurence require to compute the score
+- percentiles of the climatological distribution at level 1, 2, ..., 98, 99%.
+These statistisc are time-of-the-year and station dependent.   
 
+The verification allow the assessment of both deterministic and probabillistic forecasts.  
 
-Verification notebooks using SEEPS4ALL datasets as input (hese  notebooks can be run in parallel):
-- B1. [notebook_1_verif_single](https://github.com/ecmwf/rodeo-ai-static-datasets/blob/seeps/seeps4all/verification/notebook_1_verif_single_seeps.ipynb) for the verification of single deterministic forecast with SEEPS.
+---
 
-- B2. [notebook_2_verif_single_climate](https://github.com/ecmwf/rodeo-ai-static-datasets/blob/seeps/seeps4all/verification/notebook_2_verif_single_climate.ipynb) for the verification of single deterministic forecast using climate statistics.
-
-- B3. [notebook_3_verif_single_dressed](https://github.com/ecmwf/rodeo-ai-static-datasets/blob/seeps/seeps4all/verification/notebook_3_verif_single_dressed.ipynb) for the verification of single deterministic forecast after dressing with probabilistic scores.
+## 📄 License
+This dataset is made available under the Creative Commons Attribution-Non-Commercial License.
+For details check the LICENSE file
  
 
 
