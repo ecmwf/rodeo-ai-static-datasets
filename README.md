@@ -6,7 +6,7 @@ This repository provides metadata, documentation, and examples for a set of cura
 
 ## 📁 Repository structure
 
-### [`ecad-seeps4all`](https://github.com/ecmwf/rodeo-ai-static-datasets/seeps4all)
+### [`seeps4all`](https://github.com/ecmwf/rodeo-ai-static-datasets/tree/seeps/seeps4all)
 - Contains the ECAD / SEEPS4ALL dataset.
 - Includes:
   - `README.md` describing dataset content and structure
