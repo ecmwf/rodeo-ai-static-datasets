@@ -3,7 +3,7 @@ This repository provides tools to generate preprocessed data of daily precipitat
 
 ---
 
-## :small_orange_diamond: What is ECA&D?
+## :black_square_button: What is ECA&D?
 
 [ECA&D](https://www.ecad.eu) stands for European Climate Assessment & Dataset. 
 ECA&D encompassess daily dataset needed to monitor and analyse changes in weather and climate extremes.
@@ -12,7 +12,7 @@ Here the focus in on:
 - Daily precipitation
 - Over Europe
 
-## :small_orange_diamond: What is SEEPS4ALL?
+## :black_square_button: What is SEEPS4ALL?
 
 Scores specifically designed to assess the performance of precipitation forecasts have been developed over the years. One example is the Stable and Equitable Error in Probability Space ([SEEPS, Rodwell et al 2010](https://doi.org/10.1002/qj.656)). The computation of this score is however not straightforward because it requires information about the precipitation climatology at the verification locations. More generally, climate statistics are key to assessing forecasts for extreme precipitation and high-impact events. Here, we introduce SEEPS4ALL, a set of data and tools that democratize the use of  climate statistics for verification purposes. In particular, verification results for daily precipitation are showcased with both deterministic and probabilistic forecasts.
 
@@ -32,6 +32,18 @@ These statistisc are time-of-the-year and station dependent.
 The verification allow the assessment of both deterministic and probabillistic forecasts.  
 
 ---
+
+## :paperclip: Citation
+
+```bibtex
+@misc{seeps4all,
+      title={SEEPS4ALL: an open dataset for the verification of daily precipitation forecasts using station climatology statistics.}, 
+      author={{Ben Bouallegue} Zied and al},
+      year={2025},
+      journal={in preparation}
+}
+```
+
 
 ## 📄 License
 This dataset is made available under the Creative Commons Attribution-Non-Commercial License.
