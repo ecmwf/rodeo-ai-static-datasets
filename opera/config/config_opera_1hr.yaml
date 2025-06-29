@@ -1,20 +1,60 @@
 defaults:
-- data: zarr
+- data: zarr_1h
 - dataloader: native_grid
 - datamodule: single
 - diagnostics: evaluation
 - hardware: atos_slurm
 - graph: encoder_decoder_only
 - model: transformer
-- training: default
+- training: default_1h
 - _self_
 
 config_validation: False
 
 data: 
+  resolution: o96
   frequency: 1h
   # Time step of model (must be multiple of frequency)
-  timestep: 1h
+  timestep: 1h # we can update the resolution to 1hr or keep the original 15min
+
+  imputer:
+    default: "none"
+    0:
+      - tp
+      - dm
+      - qi
+
+  processors:
+    imputer:
+      _target_: anemoi.models.preprocessing.imputer.DynamicConstantImputer
+      _convert_: all
+      config: ${data.imputer}
+    normalizer:
+      _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+      config: ${data.normalizer}
+
+dataloader:
+  dataset:
+    - dataset: ${hardware.paths.data}/${hardware.files.opera}
+      # see cutout file for example - it's possible to pass an area or control here what variables to select
+      # area:
+      # - 70
+      # - -10
+      # - - 20
+      # - 70
+      # select: [tp]
+
+  training:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
+
+  validation:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
 
   imputer:
     default: "none"
@@ -30,56 +70,22 @@ data:
       _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
       config: ${data.normalizer}
 
-# CUTOUT TP OPERA-ERA5
-dataloader:
-  dataset:
-    - dataset: 
-        complement:
-            dataset:
-              cutout:
-                - dataset: ${hardware.paths.data}/${hardware.files.opera}
-                  area:
-                      - 70
-                      - -10
-                      - - 20
-                      - 70
-                - dataset: ${hardware.paths.data}/${hardware.files.era5}
-                  select: [ tp ]
-              min_distance_km: 1
-              adjust: dates
-        source: ${hardware.paths.data}/${hardware.files.era5}
-        interpolation: nearest
-      statistics: ${hardware.paths.data}/${hardware.files.era5} # force Anemoi to use the statistics from the global dataset
-
-
-
-  training:
-    dataset: ${dataloader.dataset}
-    start: 2013-01-23
-    end: 2023-12-31
-    drop: []
-
-  validation:
-    dataset: ${dataloader.dataset}
-    start: 2013-01-23
-    end: 2023-12-31
-    drop: []
-
-
-  limit_batches:
-    training: null
-    validation: null
-
 diagnostics:
   log:
     mlflow:
       enabled: False
+      tracking_uri: null
+    wandb: 
+      entity: None
+  plot:
+     callbacks: []
+
+
 hardware:
   paths:
-    data: path/to/dataset #! TODO
+    data: path/to/dataset #Path where the datasets have been download to
   files:
-    opera: opera_o96_2015_1hr_global.zarr
-    era5: aifs-ea-an-oper-0001-mars-o96-1979-2022-6h-v6.zarr
+    opera: rodeo-opera-files-${data.resolution}-2013-2023-15m-v3.zarr
     graph: opera_era5_o96.pt
 
 model:

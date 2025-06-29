@@ -72,6 +72,9 @@ To learn how to use **anemoi-training**, documentation is available at [https://
 
 While defining OPERA as a global dataset may seem counterintuitive, it can be useful for fine-tuning a model already trained on other global datasets like ERA5 or IMERG, especially when aiming to improve the model's performance over Europe. Example on how to define the configs for such cases can be found under 'config_opera_6hr_cutout.yaml' and 'config_opera_6hr_global.yaml'
 
+**Note:**  
+The 1-hour configs serve as a minimal working example for using Anemoi with the OPERA dataset only.  However, this should be considered a **non-realistic reference setup**, as Anemoi is designed to work with atmospheric datasets that include both pressure-level and surface variables.
+
 **Note** The configs here consider the following versions of anemoi:
 - anemoi-training: 0.5.1
 - anemoi-models: 0.8.1

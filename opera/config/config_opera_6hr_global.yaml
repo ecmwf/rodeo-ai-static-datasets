@@ -33,6 +33,7 @@ data:
 dataloader:
   dataset:
     - dataset: ${hardware.paths.data}/${hardware.files.opera}
+      select: [tp]
 
   training:
     dataset: ${dataloader.dataset}
@@ -54,13 +55,16 @@ diagnostics:
   log:
     mlflow:
       enabled: False
+      tracking_uri: null
+    wandb: 
+      entity: None
 
 hardware:
   paths:
     data: path/to/dataset #Path where the datasets have been download to
   files:
-    opera: rodeo-opera-files- ${data.resolution}-2013-2023-6h.zarr
-    graph: opera_era5_o96.pt
+    opera: rodeo-opera-files-${data.resolution}-2013-2023-6h.zarr
+    graph: opera_era5_${data.resolution}.pt
 
 model:
   num_channels: 512

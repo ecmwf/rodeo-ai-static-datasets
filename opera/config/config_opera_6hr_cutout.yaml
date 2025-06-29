@@ -80,9 +80,9 @@ hardware:
   paths:
     data: path/to/dataset #Path where the datasets have been download to
   files:
-    opera: rodeo-opera-files- ${data.resolution}-2013-2023-6h.zarr
+    opera: rodeo-opera-files-${data.resolution}-2013-2023-6h.zarr
     era5: era5_dataset #Replace with real ERA5 dataset
-    graph: opera_era5_o96.pt
+    graph: opera_era5_${data.resolution}.pt
 
 model:
   num_channels: 512
