@@ -1,0 +1,94 @@
+defaults:
+- data: zarr
+- dataloader: native_grid
+- datamodule: single
+- diagnostics: evaluation
+- hardware: atos_slurm
+- graph: encoder_decoder_only
+- model: transformer
+- training: default
+- _self_
+
+config_validation: False
+
+data: 
+  resolution: o96 
+  diagnostic:
+    - tp
+
+  imputer:
+    default: "none"
+    0:
+      - tp
+
+  processors:
+    imputer:
+      _target_: anemoi.models.preprocessing.imputer.DynamicConstantImputer
+      _convert_: all
+      config: ${data.imputer}
+    normalizer:
+      _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+      config: ${data.normalizer}
+
+# CUTOUT TP OPERA-ERA5
+dataloader:
+  dataset:
+    - dataset: 
+        complement:
+            dataset:
+              cutout:
+                - dataset: ${hardware.paths.data}/${hardware.files.opera}
+                  area:
+                      - 70
+                      - -10
+                      - - 20
+                      - 70
+                  select: [tp]
+                - dataset: ${hardware.paths.data}/${hardware.files.era5}
+                  select: [ tp ]
+              min_distance_km: 1
+              adjust: dates
+        source: ${hardware.paths.data}/${hardware.files.era5}
+        interpolation: nearest
+      statistics: ${hardware.paths.data}/${hardware.files.era5} # force Anemoi to use the statistics from the global dataset
+
+  training:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
+
+  validation:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
+
+
+  limit_batches:
+    training: null
+    validation: null
+
+diagnostics:
+  log:
+    mlflow:
+      enabled: False
+      tracking_uri: null
+    wandb: 
+      entity: None
+hardware:
+  paths:
+    data: path/to/dataset #Path where the datasets have been download to
+  files:
+    opera: rodeo-opera-files-${data.resolution}-2013-2023-6h.zarr
+    era5: era5_dataset #Replace with real ERA5 dataset
+    graph: opera_era5_${data.resolution}.pt
+
+model:
+  num_channels: 512
+
+training:
+  max_steps: 10000
+  max_epochs: 100
+  num_sanity_val_steps: 6
+
