@@ -26,6 +26,7 @@ Each dataset contains:
 
 Available configurations:
 
+```
 | Dataset Type          | Temporal Resolution| Resolution         | Format      | Use Case                       |
 |-----------------------|--------------------|--------------------|----------------------------------------------|
 | 6-hour aggregated     | 6hr                | N320               | Zarr        | Medium-range NWP + ERA5        |
@@ -33,6 +34,7 @@ Available configurations:
 | 1-hour aggregated     | 15min              | N320               | Zarr        | Nowcasting                     |
 | 1-hour aggregated     | 15min              | O96                | Zarr        | Nowcasting                     |
 | 1-hour native         | 15min              | Native (2km, LAEA) | Zarr        | Training with Observational    |
+```
 
 **Note** - precipitation in OPERA composites is defined in milimeters. While in other datasets like ERA5 is expressed in meters.
 In the 1hr and 6hr datasets units have been transformed to mm, while in the native dataset, the units have been kept to meters.
