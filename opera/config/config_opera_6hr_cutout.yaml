@@ -43,6 +43,7 @@ dataloader:
                       - -10
                       - - 20
                       - 70
+                  select: [tp]
                 - dataset: ${hardware.paths.data}/${hardware.files.era5}
                   select: [ tp ]
               min_distance_km: 1
@@ -51,32 +52,36 @@ dataloader:
         interpolation: nearest
       statistics: ${hardware.paths.data}/${hardware.files.era5} # force Anemoi to use the statistics from the global dataset
 
-
   training:
     dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
     drop: []
 
   validation:
     dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
     drop: []
 
 
   limit_batches:
     training: null
     validation: null
-    # training: 10
-    # validation: 10
 
 diagnostics:
   log:
     mlflow:
       enabled: False
+      tracking_uri: null
+    wandb: 
+      entity: None
 hardware:
   paths:
-    data: path/to/dataset #! TODO
+    data: path/to/dataset #Path where the datasets have been download to
   files:
-    opera: opera_o96_2015_6hr_global.zarr
-    era5: aifs-ea-an-oper-0001-mars-o96-1979-2022-6h-v6.zarr
+    opera: rodeo-opera-files- ${data.resolution}-2013-2023-6h.zarr
+    era5: era5_dataset #Replace with real ERA5 dataset
     graph: opera_era5_o96.pt
 
 model:

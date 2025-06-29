@@ -15,8 +15,6 @@ data:
   frequency: 1h
   # Time step of model (must be multiple of frequency)
   timestep: 1h
-  diagnostic:
-    - tp
 
   imputer:
     default: "none"
@@ -54,20 +52,23 @@ dataloader:
       statistics: ${hardware.paths.data}/${hardware.files.era5} # force Anemoi to use the statistics from the global dataset
 
 
+
   training:
     dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
     drop: []
 
   validation:
     dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
     drop: []
 
 
   limit_batches:
     training: null
     validation: null
-    # training: 10
-    # validation: 10
 
 diagnostics:
   log:
