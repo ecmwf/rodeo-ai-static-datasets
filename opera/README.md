@@ -51,6 +51,7 @@ The accumulation window for OPERA radar data **does not** align with the top of 
  ```
 which means the data represents accumulated values from **21:50 to 22:50 UTC**, even though the timestamp in the filename is `22:45`.  
 so the accumulation window, which spans from **+5 to -45 minutes** around the raw data file timestamp. We have kept this behaviour.
+Since 6hr datasets are designed to be matched with ERA5, aggregations have been computed considering top of hours windows.
 
 ---
 
