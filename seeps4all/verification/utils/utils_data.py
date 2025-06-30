@@ -42,7 +42,9 @@ def get_fct(path_data,name_forecasts):
         if  os.path.isdir(path_zarr) == False:
             print(f". get data from {url}")
             ds = xr.open_zarr(f'{url}/{bucket}/seeps4all/{name_forecasts[iex]}.zarr',decode_timedelta=True)
-            ds.to_zarr(path_zarr)
+            fct_data.append(ds)
+            #archive data
+            ds.to_zarr(path_zarr)    
         else:    
             print(f"open: {path_zarr}")
             data = xr.open_zarr(path_zarr,decode_timedelta=True)
