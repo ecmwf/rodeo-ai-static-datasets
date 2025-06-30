@@ -93,9 +93,11 @@ def get_domain(obs_data:xr.Dataset,
                domain:str):
 
     print(f"focus on domain {domain}") 
-    obs_data = select_domain(obs_data,domain)
-    for iex in range(len(fct_data)):
-        fct_data[iex] = select_domain(fct_data[iex],domain)
 
+    obs_data_domain = select_domain(obs_data,domain)
+    fct_data_domain = []
+    for iex in range(len(fct_data)):
+        fct_data_domain.append(select_domain(fct_data[iex],domain))
+        
     return obs_data,fct_data
     
