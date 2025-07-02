@@ -83,7 +83,7 @@ def get_seeps_comps(obs_seeps_data,fct_data,weights):
             print(istep,end=" ")
 
             # validity date
-            vtime = [pd.Timestamp(vt)-pd.Timedelta(24,unit="h") for vt in runs+step ]
+            vtime = [pd.Timestamp(vt) for vt in runs+step ]
             valid_t = ["%s-%02d-%02d"%(vt.year,vt.month,vt.day) for vt in vtime]
 
             # select forecast
