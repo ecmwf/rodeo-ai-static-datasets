@@ -64,13 +64,11 @@ def plot_scores_along_steps(sc_dist:np.ndarray,
     ne = len(ithr_list)    
     if ne == 1:
         fig, axs = plt.subplots(1,ne,figsize=(4.5,3.5))
+        axs = [axs]
     else:
         fig, axs = plt.subplots(1,ne,figsize=(12,3.5))
                                 
     x = np.array(range(1,nsteps+1))
-
-    if len(thresholds) == 1:
-        axs = [axs] 
         
     for ix,ik in enumerate(ithr_list):
         thr = thresholds[ik]
@@ -158,14 +156,10 @@ def plot_scores_along_thresholds(sc_dist:np.ndarray,
     ne = len(istep_list)    
     if ne == 1:
         fig, axs = plt.subplots(1,ne,figsize=(4.5,3.5))
+        axs = [axs]
     else :
         fig, axs = plt.subplots(1,ne,figsize=(12,3.5))
-    steps = np.array(range(1,nsteps+1))
-    x = steps
-
-    if len(istep_list) == 1:
-        axs = [axs] 
-
+         
     thr = np.array([ int(k[4:]) for k in thresholds])
     x = np.array(range(len(thr)))
     
