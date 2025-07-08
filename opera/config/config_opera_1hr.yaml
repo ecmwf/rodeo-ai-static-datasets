@@ -1,0 +1,98 @@
+defaults:
+- data: zarr_1h
+- dataloader: native_grid
+- datamodule: single
+- diagnostics: evaluation
+- hardware: atos_slurm
+- graph: encoder_decoder_only
+- model: transformer
+- training: default_1h
+- _self_
+
+config_validation: False
+
+data: 
+  resolution: o96
+  frequency: 1h
+  # Time step of model (must be multiple of frequency)
+  timestep: 1h # we can update the resolution to 1hr or keep the original 15min
+
+  imputer:
+    default: "none"
+    0:
+      - tp
+      - dm
+      - qi
+
+  processors:
+    imputer:
+      _target_: anemoi.models.preprocessing.imputer.DynamicConstantImputer
+      _convert_: all
+      config: ${data.imputer}
+    normalizer:
+      _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+      config: ${data.normalizer}
+
+dataloader:
+  dataset:
+    - dataset: ${hardware.paths.data}/${hardware.files.opera}
+      # see cutout file for example - it's possible to pass an area or control here what variables to select
+      # area:
+      # - 70
+      # - -10
+      # - - 20
+      # - 70
+      # select: [tp]
+
+  training:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
+
+  validation:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
+
+  imputer:
+    default: "none"
+    0:
+      - tp
+
+  processors:
+    imputer:
+      _target_: anemoi.models.preprocessing.imputer.DynamicConstantImputer
+      _convert_: all
+      config: ${data.imputer}
+    normalizer:
+      _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+      config: ${data.normalizer}
+
+diagnostics:
+  log:
+    mlflow:
+      enabled: False
+      tracking_uri: null
+    wandb: 
+      entity: None
+  plot:
+     callbacks: []
+
+
+hardware:
+  paths:
+    data: path/to/dataset #Path where the datasets have been download to
+  files:
+    opera: rodeo-opera-files-${data.resolution}-2013-2023-15m-v3.zarr
+    graph: opera_era5_o96.pt
+
+model:
+  num_channels: 512
+
+training:
+  max_steps: 10000
+  max_epochs: 100
+  num_sanity_val_steps: 6
+
