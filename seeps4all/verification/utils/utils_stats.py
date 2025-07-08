@@ -199,12 +199,7 @@ def sc_bootstrap(sco:np.ndarray,
     ndates = sco.shape[4]
     
     sc_dist =np.zeros( (nboot,2,nexp,nkeys,nsteps) )
-    for ib in range(nboot):
-        if nboot >1:
-            id_boot = get_boot_ids(ndates,nblock)
-        else:
-            id_boot = range(ndates)
-                    
+
     for ib in range(nboot):
         if nboot >1:
             id_boot = get_boot_ids(ndates,nblock)
