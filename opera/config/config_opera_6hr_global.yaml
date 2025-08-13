@@ -1,0 +1,79 @@
+defaults:
+- data: zarr
+- dataloader: native_grid
+- datamodule: single
+- diagnostics: evaluation
+- hardware: atos_slurm
+- graph: encoder_decoder_only
+- model: transformer
+- training: default
+- _self_
+
+config_validation: False
+
+data: 
+  resolution: o96 
+  diagnostic:
+    - tp
+
+  imputer:
+    default: "none"
+    0:
+      - tp
+
+  processors:
+    imputer:
+      _target_: anemoi.models.preprocessing.imputer.DynamicConstantImputer
+      _convert_: all
+      config: ${data.imputer}
+    normalizer:
+      _target_: anemoi.models.preprocessing.normalizer.InputNormalizer
+      config: ${data.normalizer}
+
+dataloader:
+  dataset:
+    - dataset: ${hardware.paths.data}/${hardware.files.opera}
+      select: [tp]
+
+  training:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
+
+  validation:
+    dataset: ${dataloader.dataset}
+    start: 2013-01-23
+    end: 2023-12-31
+    drop: []
+
+  limit_batches:
+    training: null
+    validation: null
+
+diagnostics:
+  log:
+    mlflow:
+      enabled: False
+      tracking_uri: null
+    wandb: 
+      entity: None
+
+hardware:
+  paths:
+    data: path/to/dataset #Path where the datasets have been download to
+  files:
+    opera: rodeo-opera-files-${data.resolution}-2013-2023-6h.zarr
+    graph: opera_era5_${data.resolution}.pt
+
+model:
+  num_channels: 512
+
+training:
+  max_steps: 10000
+  max_epochs: 100
+  num_sanity_val_steps: 6
+
+
+
+

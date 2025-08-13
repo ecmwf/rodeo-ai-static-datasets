@@ -22,7 +22,7 @@ def get_obs(path_data,obs_type,obs_origin="ecad",years="2022_2024",param="tp24")
             os.makedirs(path_data)
         print(f". fetching data from {url}")
         bucket = "ecmwf-rodeo-benchmark"
-        ds = xr.open_zarr(f'{url}/{bucket}/seeps4all/obs_{obs_type}_{param}_{years}_{obs_origin}.zarr')
+        ds = xr.open_zarr(f'{url}/{bucket}/seeps4all/obs_{obs_type}_{param}_{years}_{obs_origin}.zarr',decode_timedelta=True)
         ds.to_zarr(path_zarr)
     print(f"open: {path_zarr}")
     obs_seeps_data = xr.open_zarr(path_zarr,decode_timedelta=True)
@@ -41,8 +41,10 @@ def get_fct(path_data,name_forecasts):
         path_zarr=f"{path_data}/{name_forecasts[iex]}.zarr"
         if  os.path.isdir(path_zarr) == False:
             print(f". get data from {url}")
-            ds = xr.open_zarr(f'{url}/{bucket}/seeps4all/{name_forecasts[iex]}.zarr')
-            ds.to_zarr(path_zarr)
+            ds = xr.open_zarr(f'{url}/{bucket}/seeps4all/{name_forecasts[iex]}.zarr',decode_timedelta=True)
+            fct_data.append(ds)
+            #archive data
+            ds.to_zarr(path_zarr)    
         else:    
             print(f"open: {path_zarr}")
             data = xr.open_zarr(path_zarr,decode_timedelta=True)
@@ -93,9 +95,11 @@ def get_domain(obs_data:xr.Dataset,
                domain:str):
 
     print(f"focus on domain {domain}") 
-    obs_data = select_domain(obs_data,domain)
-    for iex in range(len(fct_data)):
-        fct_data[iex] = select_domain(fct_data[iex],domain)
 
+    obs_data_domain = select_domain(obs_data,domain)
+    fct_data_domain = []
+    for iex in range(len(fct_data)):
+        fct_data_domain.append(select_domain(fct_data[iex],domain))
+        
     return obs_data,fct_data
     
