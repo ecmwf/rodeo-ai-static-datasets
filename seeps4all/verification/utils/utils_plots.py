@@ -148,7 +148,8 @@ def plot_scores_along_thresholds(sc_dist:np.ndarray,
 
     nexp   = sc_dist.shape[2]
     nsteps = sc_dist.shape[4]
-    
+    steps  = np.array(range(1,nsteps+1))
+                             
     # all steps (no particular selection)
     if len(istep_list) == 0 :
         istep_list = range(nsteps) 
