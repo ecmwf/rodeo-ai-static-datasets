@@ -156,7 +156,7 @@ def get_CT(obs_clim_data,
         
     return CT
 
-def get_scores_thr(obs_data,fct_data,weights,thresholds):
+def get_scores_thr(obs_data,fct_data,weights,thresholds,offset=0):
 
     #get dimensions
     nthr = len(thresholds)
@@ -184,7 +184,7 @@ def get_scores_thr(obs_data,fct_data,weights,thresholds):
             print(istep,end=" ")
 
             # validity date
-            vtime = [pd.Timestamp(vt)-pd.Timedelta(24,unit="h") for vt in runs+step ]
+            vtime = [pd.Timestamp(vt)-pd.Timedelta(offset,unit="h") for vt in runs+step ]
             valid_t = ["%s-%02d-%02d"%(vt.year,vt.month,vt.day) for vt in vtime]
 
             # select observations
@@ -323,6 +323,14 @@ def compute_score_avg(data:xr.Dataset,
     if score == "seeps":
         sc,_ = compute_seeps(data)
         sc_ref = sc*np.nan
+    
+    elif score == "rmse":
+        sc = compute_rmse(data)
+        sc_ref = sc*np.nan
+        
+    elif score in ("me","bias"):
+        sc = compute_me(data)
+        sc_ref = sc*np.nan
         
     elif score == "bs":
         sc, sc_ref = compute_bs(data,ens,threshold)
@@ -336,8 +344,30 @@ def compute_score_avg(data:xr.Dataset,
     # averaging over stations + weighting   
     sc     = sc_avg(sc,weights)
     sc_ref = sc_avg(sc_ref,weights)
+    if score == "rmse":
+        sc = sc**0.5
 
     return sc,sc_ref
+
+def compute_rmse(data:xr.Dataset)-> xr.Dataset:
+    """" compute Root Mean Squared Error """
+
+    ob = data.observation.values.flatten()
+    fc = data.forecast.values.flatten()
+
+    rmse = (fc-ob)**2
+
+    return rmse.reshape(data.observation.shape)
+
+def compute_me(data:xr.Dataset)-> xr.Dataset:
+    """" compute Mean Error """
+
+    ob = data.observation.values.flatten()
+    fc = data.forecast.values.flatten()
+
+    me = fc-ob
+
+    return me.reshape(data.observation.shape)
     
 def compute_bs(data:xr.Dataset,
                ens:xr.Dataset,
