@@ -1,5 +1,11 @@
 # :umbrella: SEEPS4ALL for the verification of precipitation forecasts
-This repository provides tools to generate preprocessed data of daily precipitation in-situ observations derived from **ECA&D** as well as collocated foreacts, together with scripts to compute verification scores.
+
+This repository provides scripts to compute verification scores for precipitation forecasts. 
+Forecasts are compared against in-situ observations using climate statistics for the computation of scores and skill scores.
+
+SEEPS4ALL comprises verification scripts but also a set of tools to generate climate statistics from **ECA&D** as well as collocated forecast and observation data.
+
+An example of a dataset is provided using 1991-2020 for the climate statistics and 2022-2024 for the verification. **ECA&D** is updated regularly so one could update SEEPS4ALL data too if needed. 
 
 ---
 
