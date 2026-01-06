@@ -22,11 +22,12 @@ ll = lambda icnt: int(lats[icnt]*10000)*1000+lons[icnt]
 year_clim_i = 1991
 year_clim_f = 2020
 
-# Raw ECAD directory
-path_input="/perm/mozb/RODEO/SEEPS4ALL/ECAD/"
+# Raw ECAD directory (get data from https://www.ecad.eu)
+path_input="/my/input/data/path/"
 
 # output directory
-path_output="/perm/mozb/RODEO/SEEPS4ALL/DATA"
+path_output="/my/ouput/data/path/"
+
 # create local directory
 clim_years = f"{year_clim_i}-{year_clim_f}"
 path_local = f"{path_output}/local_climate_{clim_years}"
@@ -111,7 +112,7 @@ for icnt, stnid in enumerate(stnid_list):
 
     n1 = ["count"]
     c1 = clim_g0.count()
-    for q in range(1,100):
+    for q in range(1,101):
         n1.append("q%s"%q)
         c1 = pd.concat([c1,clim_g0.quantile(q/100)],axis=1)
     c1 = c1.set_axis(n1,axis=1)
