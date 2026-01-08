@@ -23,11 +23,12 @@ year_f = 2024
 year_clim_i = 1991
 year_clim_f = 2020
 
-# output directory
-path_output="/perm/mozb/RODEO/SEEPS4ALL/DATA"
+# Raw ECAD directory (get data from https://www.ecad.eu)
+path_input="/my/input/data/path/"
 
-# Raw ECAD directory
-path_input="/perm/mozb/RODEO/SEEPS4ALL/ECAD/"
+# output directory (same output directory as in build_seeps4all_step1.py)
+path_output="/my/ouput/data/path/"
+
 
 # Get station list and metadata 
 
@@ -61,13 +62,12 @@ seeps_all = xr.Dataset()
 
 # description and licence
 description_seeps="observations with SEEPS thresholds and coefficients"
-description_clim="observations with climate percentiles from 1 to 99"
+description_clim="observations with climate percentiles from 1 to 99 and maximum"
 licence="CC-BY-NC. See also https://knmi-ecad-assets-prd.s3.amazonaws.com/documents/ECAD_datapolicy.pdf"
-version="1.0.0"
+version="1.1.0"
 
 #initialisation
 latlons = []
-first = True
 
 # loop over station ids
 for icnt, stnid in enumerate(stnid_list):
@@ -94,7 +94,6 @@ for icnt, stnid in enumerate(stnid_list):
         if (val == bigv).sum() >1:
             val[ val == bigv ] = np.nan
 
-    
     # apply QC 3
     # proportion of zeros
     prop_zeros = (val<0.1).sum()/(val>=0).sum()
@@ -114,7 +113,6 @@ for icnt, stnid in enumerate(stnid_list):
     tim =  np.array([ pd.Timestamp(str(v))+pd.Timedelta(24,unit="h") for v in data["DATE"] ] )
     del data 
 
-    
     # define periof of interest  
     dok = (tim >= time_start) & (tim <= time_end)
     # check availability
@@ -140,74 +138,69 @@ for icnt, stnid in enumerate(stnid_list):
         print("availability of climatology not for the 12 month of the year")
         continue
 
+    # set to nan when needed
+    p1,p3 = clim_eq["p1"].values,clim_eq["p2"].values
+    idna = (p1 < 0.1) | (p1 >= 0.85) | (clim_eq["count_all"] < 300) | (clim_eq["count_t1"] < 50)
+    p1[idna],p3[idna] = np.nan, np.nan
+    
     # initialise SEEPS matrix 
-    ndates = dok.sum()
-    seeps_mtx = np.zeros((ndates,13))
-    ecq = np.zeros(9) # 3 x 3 matrix for SEEPS calculation
+    seeps_coefs = np.zeros((12,13)) # 12 months, 13 coefficients
 
-    # loop over dates 
-    for ida, dd in enumerate(tim[dok]): 
+    # compute SEEPS coefficients
+    seeps_coefs[:,0] = 1 - clim_eq["p1"]
+    seeps_coefs[:,1] = clim_eq["t1"]
+    seeps_coefs[:,2] = 1 - clim_eq["p2"]
+    seeps_coefs[:,3] = clim_eq["t2"]
 
-        # find month 
-        date = pd.to_datetime(dd)
-        datei = "%s%02d%02d"%(date.year,date.month,date.day)
-        montho = pd.Timestamp(datei).month 
+    val = 0.5/(1-p1)
+    val[val>12.5] = 12.5
+    seeps_coefs[:,5] = val
 
-        # get corresponding probability values
-        p1 = clim_eq["p1"].iloc[montho-1] # Probability of the ‘dry’ category
-        p3 = clim_eq["p2"].iloc[montho-1] # Probability of ‘dry’ + probability of ’light
-        if (p1 < 0.1) | (p1 >= 0.85) | (clim_eq["count_all"].iloc[montho-1] < 300) | (clim_eq["count_t1"].iloc[montho-1] < 50):
-            p1,p3 = np.nan,np.nan
+    val = 0.5/(1-p3) + 0.5/(1-p1)
+    val[val>50] = 50
+    seeps_coefs[:,6] = val
 
-        # compute SEEPS coefficients
-        ecq[1]= np.min( [0.5/(1-p1), 12.5] )
-        ecq[2]= np.min( [0.5/(1-p3) + 0.5/(1-p1),50] )
-        ecq[3]= np.min( [0.5/p1, 12.5] )
-        ecq[5]= np.min( [0.5/(1-p3), 37.5] )
-        ecq[6]= np.min( [0.5/p1 + 0.5/p3, 13.235] )
-        ecq[7]= np.min( [0.5/p3, 1] )
-                
-        clim_m = clim_eq.iloc[[montho-1]]
+    val = 0.5/p1
+    val[val>12.5] = 12.5
+    seeps_coefs[:,7] = val
 
-        seeps_mtx[ida,0] = 1- clim_m.p1.values[0]
-        seeps_mtx[ida,1] = clim_m.t1.values[0]
-        seeps_mtx[ida,2] = 1-clim_m.p2.values[0]
-        seeps_mtx[ida,3] = clim_m.t2.values[0]
-        seeps_mtx[ida,4:14] = ecq
+    val = 0.5/(1-p3)
+    val[val>37.5] = 37.5
+    seeps_coefs[:,9] = val
 
+    val = 0.5/p1 + 0.5/p3
+    val[val>13.235] = 13.235
+    seeps_coefs[:,10] = val
 
-    coords=dict( time = tim[dok],
+    val = 0.5/p3
+    val[val>1] = 1
+    seeps_coefs[:,11] = val
+
+    seeps_labs =("p1","t1","p2","t2")
+    for im in range(9):
+        seeps_labs += ("m%s"%(im+1),)
+
+    coords_seeps=dict( time = tim[dok],
                  stnid = [stnid,],
+                 name = list(seeps_labs),
+                 month = list(range(1,12+1)),
                  lat= ("stnid", [np.round(lats[icnt],2),]),
                  lon= ("stnid", [np.round(lons[icnt],2),]),
                  elevation= ("stnid", [np.round(elevs[icnt],2),]),
                 )
     
     # ouput dataset for one stations
-    data_vars=dict(
-                   observation = ([ "time","stnid"], x),
-                   p1=([ "time","stnid"], seeps_mtx[:,0].reshape((ndates,1))),
-                   t1=([ "time","stnid"], seeps_mtx[:,1].reshape((ndates,1))), 
-                   p2=([ "time","stnid"], seeps_mtx[:,2].reshape((ndates,1))),
-                   t2=([ "time","stnid"], seeps_mtx[:,3].reshape((ndates,1))),
-                   mx1=([ "time","stnid"], seeps_mtx[:,4].reshape((ndates,1))),
-                   mx2=([ "time","stnid"], seeps_mtx[:,5].reshape((ndates,1))),
-                   mx3=([ "time","stnid"], seeps_mtx[:,6].reshape((ndates,1))),
-                   mx4=([ "time","stnid"], seeps_mtx[:,7].reshape((ndates,1))),
-                   mx5=([ "time","stnid"], seeps_mtx[:,8].reshape((ndates,1))),
-                   mx6=([ "time","stnid"], seeps_mtx[:,9].reshape((ndates,1))),
-                   mx7=([ "time","stnid"], seeps_mtx[:,10].reshape((ndates,1))),
-                   mx8=([ "time","stnid"], seeps_mtx[:,11].reshape((ndates,1))),
-                   mx9=([ "time","stnid"], seeps_mtx[:,12].reshape((ndates,1))),
-                )
+    data_vars=dict()
+    data_vars["observation"] = ([ "time","stnid"], x)
+    data_vars["coefficients"] = ([ "month","stnid","name"], seeps_coefs.reshape((12,1,13)))
 
     # concatenate over stations
     if icnt == 0:
         attrs=dict(description=description_seeps,licence=licence,version=version)
-        seeps_all = xr.Dataset(data_vars=data_vars,coords=coords,attrs=attrs)
+        seeps_all = xr.Dataset(data_vars=data_vars,coords=coords_seeps,attrs=attrs)
 
     else:   
-        seeps = xr.Dataset(data_vars=data_vars,coords=coords)
+        seeps = xr.Dataset(data_vars=data_vars,coords=coords_seeps)
         seeps_all = xr.concat([seeps_all,seeps],dim="stnid")
 
     # PART 2: climatology percentiles
@@ -215,26 +208,26 @@ for icnt, stnid in enumerate(stnid_list):
 
     # read info about percentiles of the climate distribution
     clim_perc = pd.read_csv(f"{path_output}/local_climate_{clim_years}/percentiles_st{stnid}_{clim_years}.csv")
-
-    perc_mtx = np.zeros((ndates,99)) # 99 percentiles
-    for ida, dd in enumerate(tim[dok]):
-        date = pd.to_datetime(dd)
-        datei = "%s%02d%02d"%(date.year,date.month,date.day)
-        montho = pd.Timestamp(datei).month
-        perc_mtx[ida,:] = clim_perc.iloc[[montho-1]].values[0,clim_perc.shape[1]-99:]
-    del clim_perc
+    
+    coords_perc=dict( time = tim[dok],
+                      stnid = [stnid,],
+                      perc = list(range(1,100+1)),
+                      month = list(range(1,12+1)),
+                      lat= ("stnid", [np.round(lats[icnt],2),]),
+                      lon= ("stnid", [np.round(lons[icnt],2),]),
+                      elevation= ("stnid", [np.round(elevs[icnt],2),]),
+                    )
     
     data_vars=dict()
     data_vars["observation"] = ([ "time","stnid"], x)
-    for iq in range(99):
-        data_vars["perc%s"%(iq+1)]=([ "time","stnid"], perc_mtx[:,iq].reshape((ndates,1)))
+    data_vars["percentile"] = ([ "month","stnid","perc"], clim_perc.values[:,2:].reshape((12,1,99+1)))
 
     # concatenate over stations
     if icnt == 0:
         attrs=dict(description=description_clim,licence=licence,version=version),
-        oclim_all = xr.Dataset(data_vars=data_vars,coords=coords,attrs=attrs)
+        oclim_all = xr.Dataset(data_vars=data_vars,coords=coords_perc,attrs=attrs)
     else:    
-        oclim = xr.Dataset(data_vars=data_vars,coords=coords)
+        oclim = xr.Dataset(data_vars=data_vars,coords=coords_perc)
         oclim_all = xr.concat([oclim_all,oclim],dim="stnid")
 
 # Archive in NetCDF
