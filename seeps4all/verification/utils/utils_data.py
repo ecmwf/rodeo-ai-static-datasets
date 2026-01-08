@@ -60,6 +60,57 @@ def get_fct(path_data,name_forecasts):
             
     return fct_data
 
+# select obs according to fct
+def select_obs (obs_data,fct_data,obs_type,offset = 0):
+
+    nexp = len(fct_data)
+    valid_t_all = []
+    for iex in range(nexp):
+        runs = fct_data[iex].run.values
+        steps = fct_data[iex].step.values
+        for istep,step in enumerate(steps):
+            # validity date
+            vtime = [pd.Timestamp(vt)-pd.Timedelta(offset,unit="h") for vt in runs+step ]
+            valid_t_all += ["%s-%02d-%02d"%(vt.year,vt.month,vt.day) for vt in vtime]
+            
+    # select all observations neeeded
+    time_obs = np.unique(valid_t_all)
+    data = obs_data.sel(time=time_obs)
+
+    ndates = len(time_obs)
+    nstid = len(data.stnid)
+
+    if obs_type == "seeps":
+        seeps_mtx = np.zeros((ndates,nstid,13))
+    elif obs_type == "clim":
+        perc_mtx = np.zeros((ndates,nstid,99+1))
+
+    for ida, dd in enumerate(time_obs):
+        date = pd.to_datetime(dd)
+        datei = "%s%02d%02d"%(date.year,date.month,date.day)
+        montho = pd.Timestamp(datei).month
+        if obs_type == "clim":
+            perc_mtx[ida,:,:] = data.percentile.sel(month=montho).values
+        elif obs_type == "seeps":
+            seeps_mtx[ida,:,:] = data.coefficients.sel(month=montho).values
+
+    if obs_type == "clim":
+        for ik in range(100):
+            data = data.assign(perc=(["time","stnid"],perc_mtx[:,:,ik]))
+            data = data.rename(perc="perc%s"%(1+ik))
+
+    elif obs_type == "seeps":
+        data = data.assign(p1=(["time","stnid"],seeps_mtx[:,:,0]))
+        data = data.assign(t1=(["time","stnid"],seeps_mtx[:,:,1]))
+        data = data.assign(p2=(["time","stnid"],seeps_mtx[:,:,2]))
+        data = data.assign(t2=(["time","stnid"],seeps_mtx[:,:,3]))
+        for ik in range(9):
+            data = data.assign(mx=(["time","stnid"],seeps_mtx[:,:,4+ik]))
+            data = data.rename(mx="mx%s"%(1+ik))
+
+    return data
+
+# domain definition
 def info_domain(domain:str,
                 lats:np.ndarray,
                 lons:np.ndarray) -> np.ndarray:
@@ -101,5 +152,5 @@ def get_domain(obs_data:xr.Dataset,
     for iex in range(len(fct_data)):
         fct_data_domain.append(select_domain(fct_data[iex],domain))
         
-    return obs_data,fct_data
+    return obs_data_domain,fct_data_domain
     
