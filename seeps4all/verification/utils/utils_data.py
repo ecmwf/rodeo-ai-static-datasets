@@ -96,8 +96,9 @@ def select_obs (obs_data,fct_data,obs_type,offset = 0):
 
     if obs_type == "clim":
         for ik in range(100):
-            data = data.assign(perc=(["time","stnid"],perc_mtx[:,:,ik]))
-            data = data.rename(perc="perc%s"%(1+ik))
+            data = data.assign(perc_tmp=(["time","stnid"],perc_mtx[:,:,ik]))
+            data = data.rename(perc_tmp="perc%s"%(1+ik))
+        data = data.drop_vars("percentile")
 
     elif obs_type == "seeps":
         data = data.assign(p1=(["time","stnid"],seeps_mtx[:,:,0]))
@@ -107,7 +108,7 @@ def select_obs (obs_data,fct_data,obs_type,offset = 0):
         for ik in range(9):
             data = data.assign(mx=(["time","stnid"],seeps_mtx[:,:,4+ik]))
             data = data.rename(mx="mx%s"%(1+ik))
-
+        data = data.drop_vars("coefficients")   
     return data
 
 # domain definition
