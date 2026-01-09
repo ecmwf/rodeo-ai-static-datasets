@@ -224,7 +224,7 @@ for icnt, stnid in enumerate(stnid_list):
 
     # concatenate over stations
     if icnt == 0:
-        attrs=dict(description=description_clim,licence=licence,version=version),
+        attrs=dict(description=description_clim,licence=licence,version=version)
         oclim_all = xr.Dataset(data_vars=data_vars,coords=coords_perc,attrs=attrs)
     else:    
         oclim = xr.Dataset(data_vars=data_vars,coords=coords_perc)
