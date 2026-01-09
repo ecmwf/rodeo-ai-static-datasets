@@ -7,6 +7,7 @@ Select domain.
 
 import os
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 url = "https://object-store.os-api.cci2.ecmwf.int"
