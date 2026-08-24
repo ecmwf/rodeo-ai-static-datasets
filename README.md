@@ -24,6 +24,12 @@ This repository provides metadata, documentation, and examples for a set of cura
 
 Datasets are publicly available via ECMWF’s S3 bucket 's3://ecmwf-rodeo-benchmark', as approved for open access.
 
+For instance in python: 
+``` python
+import zarr
+zarr.open('https://object-store.os-api.cci2.ecmwf.int/ecmwf-rodeo-benchmark/seeps4all/obs_seeps_tp24_2022_2024_ecad.zarr')
+```
+
 ### ECAD / SEEPS4ALL
 - Format: **Zarr**
 - Preprocessed for use in verification workflows
